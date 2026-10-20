@@ -72,9 +72,11 @@
   }
   const show = (i) => bgs.forEach((b, k) => b.classList.toggle('on', k === i));
 
+  // trois pastilles pour deux lancers : la dernière est la question, elle se vide quand la modale arrive
   function updatePips() {
-    [...pips.children].forEach((p, k) => p.classList.toggle('is-full', k < st.left));
-    pips.setAttribute('aria-label', `${st.left} lancer${st.left > 1 ? 's' : ''} restant${st.left > 1 ? 's' : ''}`);
+    const n = st.left + (st.phase === 'done' ? 0 : 1);
+    [...pips.children].forEach((p, k) => p.classList.toggle('is-full', k < n));
+    pips.setAttribute('aria-label', `${n} étape${n > 1 ? 's' : ''} restante${n > 1 ? 's' : ''}`);
   }
 
   // Espace / Entrée : le geste unique du visiteur (plus tard : le vrai gouvernail)
@@ -159,6 +161,7 @@
         after(NEXT_SPIN_DELAY_MS, () => { st.phase = 'idle'; spin(); });
       } else {
         st.phase = 'done';
+        updatePips();
         after(600, openModal);
       }
     });
@@ -179,8 +182,7 @@
   function fail(field, err, on) { err.hidden = !on; field.setAttribute('aria-invalid', String(on)); }
 
   function openModal() {
-    const [a, b] = st.picks.map((i) => DESTS[i].name);
-    $('picks').textContent = `${a} · ${b}`;
+    $('picks').textContent = st.picks.map((i) => DESTS[i].name).join(' · ');
     go('question');
     dlg.showModal();
     answer.focus();

@@ -20,7 +20,6 @@
   const SPIN_MS = REDUCED ? 1200 : 6200;
   const LAND_PAUSE_MS = 700;      // la roue s'est arrêtée : un temps de suspense avant le zoom
   const ZOOM_MS = 1400;           // identique aux transitions de zoom dans style.css
-  const DWELL_MS = 4500;          // après le 2e tirage : temps sur la photo avant de continuer seul
   const NEXT_SPIN_DELAY_MS = 900; // le médaillon s'envole, puis la roue repart
   const THANKS_SECONDS = 12;
 
@@ -54,7 +53,7 @@
 
   // phase : idle → spinning → landed → zoomed → leaving → (idle | done)
   const st = {
-    phase: 'idle', angle: 0, left: MAX_SPINS, picks: [], top: -1, run: 0, timers: [], tick: 0, autoT: 0,
+    phase: 'idle', angle: 0, left: MAX_SPINS, picks: [], top: -1, run: 0, timers: [], tick: 0,
     gone: new Set(),     // destinations déjà tirées : elles ont quitté le gouvernail
     pending: null,       // la destination affichée, qui partira quand on repasse sur le gouvernail
   };
@@ -143,14 +142,12 @@
     st.phase = 'zoomed';
     // deux frames : la photo doit être posée sur le médaillon avant que la transition démarre
     requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.add('is-zoomed')));
-    if (!st.left) st.autoT = after(ZOOM_MS + DWELL_MS, leave);
   }
 
   // retour au gouvernail : la photo se referme, le médaillon part, puis la roue repart (ou la modale s'ouvre)
   function leave() {
     if (st.phase !== 'zoomed') return;
     st.phase = 'leaving';
-    clearTimeout(st.autoT);
     stage.classList.remove('is-zoomed');
     result.setAttribute('aria-hidden', 'true');
     after(ZOOM_MS, () => {

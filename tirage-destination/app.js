@@ -209,7 +209,7 @@
   // concept : la réponse et l'email ne sont ni stockés ni envoyés
   function thanks() {
     $('thanksTitle').textContent = 'Merci pour votre réponse.';
-    $('thanksText').textContent = 'Vous participez au tirage au sort : si vous êtes le gagnant, SamBoat vous écrira. Bon vent !';
+    $('thanksText').textContent = 'Vous participez au tirage au sort : si vous êtes le gagnant, SamBoat vous écrira. Merci d’avoir joué, et à bientôt en mer !';
     let n = THANKS_SECONDS;
     $('count').textContent = n;
     go('thanks');

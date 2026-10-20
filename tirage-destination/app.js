@@ -30,6 +30,7 @@
   const dlg = $('dlg'), steps = [...dlg.querySelectorAll('.step')];
   const formQuestion = $('formQuestion'), answer = $('answer'), answerErr = $('answerErr');
   const formMail = $('formMail'), mail = $('mail'), mailErr = $('mailErr');
+  const consent = $('consent'), consentErr = $('consentErr');
 
   const mod = (x, m) => ((x % m) + m) % m;
   const rnd = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n;
@@ -180,7 +181,6 @@
   function openModal() {
     const [a, b] = st.picks.map((i) => DESTS[i].name);
     $('picks').textContent = `${a} · ${b}`;
-    $('lead').textContent = `${a} et ${b} vous attendent. Laissez votre email pour tenter de remporter 15 % de remise sur un voyage SamBoat.`;
     go('question');
     dlg.showModal();
     answer.focus();
@@ -198,8 +198,12 @@
     e.preventDefault();
     if (!mail.value.trim() || !mail.checkValidity()) { fail(mail, mailErr, true); mail.focus(); return; }
     fail(mail, mailErr, false);
+    // RGPD : consentement explicite, jamais pré-coché
+    if (!consent.checked) { fail(consent, consentErr, true); consent.focus(); return; }
+    fail(consent, consentErr, false);
     thanks();
   });
+  consent.addEventListener('change', () => { if (consent.checked) fail(consent, consentErr, false); });
   $('again').addEventListener('click', reset);
 
   // concept : la réponse et l'email ne sont ni stockés ni envoyés
@@ -227,6 +231,7 @@
     formMail.reset();
     fail(answer, answerErr, false);
     fail(mail, mailErr, false);
+    fail(consent, consentErr, false);
     Object.assign(st, { phase: 'idle', left: MAX_SPINS, picks: [], pending: null });
     st.gone.clear();
     stage.classList.remove('is-landed', 'is-zoomed');

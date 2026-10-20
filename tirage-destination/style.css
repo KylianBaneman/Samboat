@@ -1,0 +1,263 @@
+/* Direction Air — photo plein cadre sur noir, boutons fantômes, un seul accent (actions). Aucune ombre.
+   Une seule famille : The Seasons (celle des slides SamBoat). */
+
+@font-face {
+  font-family: "The Seasons";
+  src: url("fonts/theseasons-regular.ttf") format("truetype");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "The Seasons";
+  src: url("fonts/theseasons-italic.ttf") format("truetype");
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "The Seasons";
+  src: url("fonts/theseasons-bold.ttf") format("truetype");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
+:root {
+  --black: #000;
+  --ink: #1b1b1b;
+  --white: #fff;
+  --haze: #f5f5f5;
+  --signal: #2b7fff; /* l'unique accent : actions et focus */
+  --muted: rgba(255, 255, 255, 0.78);
+
+  --ease: cubic-bezier(0.19, 1, 0.22, 1);
+  --u: 4px;
+  --edge: 48px;
+
+  --body: 20px;
+  --display: clamp(108px, 22vh, 320px);
+
+  --r-field: 4px;
+  --r-btn: 8px;
+  --r-card: 12px;
+
+  --s: min(84vh, 92vw); /* diamètre de la roue, médaillons compris */
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background: var(--black);
+  color: var(--white);
+  font: 400 var(--body) / 1.5 "The Seasons", Georgia, serif;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior: none;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ─── Scène ─────────────────────────────────────────── */
+
+.stage { position: fixed; inset: 0; overflow: hidden; background: var(--black); }
+
+.backdrop, .veil { position: absolute; inset: 0; }
+/* la photo s'ouvre en cercle depuis le médaillon tiré (--cx, --cy, --r0 sont posés par app.js) */
+.backdrop {
+  clip-path: circle(var(--r0, 0px) at var(--cx, 50%) var(--cy, 50%));
+  transition: clip-path 1400ms var(--ease);
+}
+.is-zoomed .backdrop { clip-path: circle(150vmax at var(--cx, 50%) var(--cy, 50%)); }
+.backdrop img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; opacity: 0;
+}
+.backdrop img.on { opacity: 1; }
+
+.veil {
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.62));
+  opacity: 0; transition: opacity 600ms var(--ease);
+}
+.is-zoomed .veil { opacity: 1; transition: opacity 1000ms var(--ease) 600ms; }
+
+/* la caméra plonge dans le médaillon tiré : tout le gouvernail grossit autour de lui puis s'efface */
+.zoomer {
+  position: absolute; inset: 0; pointer-events: none;
+  transition: transform 1400ms var(--ease), opacity 700ms var(--ease);
+}
+.is-zoomed .zoomer {
+  transform: scale(10); opacity: 0;
+  transition: transform 1400ms var(--ease), opacity 800ms var(--ease) 500ms;
+}
+
+.rise { opacity: 0; animation: rise 1000ms var(--ease) var(--d, 0ms) forwards; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ─── Marque, titre, compteur ───────────────────────── */
+
+.brand {
+  position: absolute; left: var(--edge); top: var(--edge);
+  display: flex; align-items: center; gap: 12px;
+}
+.logo { display: block; width: 44px; height: 44px; }
+.wordmark { font-weight: 700; letter-spacing: 0.02em; }
+
+.pips {
+  position: absolute; right: var(--edge); top: var(--edge);
+  display: flex; align-items: center; gap: 16px;
+}
+.pips-label { font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; }
+.pips-dots { display: flex; gap: 12px; }
+.pip {
+  display: block; width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--white);
+  transition: background-color 800ms var(--ease);
+}
+.pip.is-full { background: var(--white); }
+
+/* ─── Roue ──────────────────────────────────────────── */
+
+.wheel-box {
+  position: absolute; left: 50%; top: 53%;
+  width: var(--s); height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+}
+.wheel { position: absolute; inset: 0; will-change: transform; }
+.helm {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; user-select: none; -webkit-user-drag: none;
+}
+
+.pointer {
+  position: absolute; left: 50%; top: -40px; margin-left: -16px;
+  width: 0; height: 0;
+  border-left: 16px solid transparent; border-right: 16px solid transparent;
+  border-top: 24px solid var(--white);
+}
+
+.slot {
+  position: absolute; left: 50%; top: 50%; width: 0; height: 0;
+  transform: rotate(calc(var(--i) * 36deg)) translateY(calc(var(--s) * -0.43518)); /* 470 / 1080 */
+}
+.thumb {
+  position: absolute;
+  width: calc(var(--s) * 0.11852); height: calc(var(--s) * 0.11852); /* 128 / 1080 */
+  left: calc(var(--s) * -0.05926); top: calc(var(--s) * -0.05926);
+}
+.thumb-in {
+  width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
+  outline: 3px solid transparent; outline-offset: 6px;
+  transition: transform 1000ms var(--ease), opacity 1000ms var(--ease), outline-color 600ms var(--ease);
+}
+.thumb-in img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.thumb.top .thumb-in { outline-color: rgba(255, 255, 255, 0.9); }
+.is-landed .thumb:not(.win):not(.gone) .thumb-in { opacity: 0.4; }
+.thumb.win .thumb-in { transform: scale(1.12); outline-color: var(--white); }
+/* la destination tirée quitte le gouvernail : l'anneau de laiton reste, vide */
+.thumb.gone .thumb-in {
+  opacity: 0; outline-color: transparent;
+  transform: translateY(calc(var(--s) * -0.14)) scale(0.7);
+  transition-duration: 1200ms;
+}
+
+/* ─── Résultat ──────────────────────────────────────── */
+
+.result {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0 var(--edge); text-align: center; pointer-events: none;
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 600ms var(--ease), transform 600ms var(--ease);
+}
+.is-zoomed .result {
+  opacity: 1; transform: none;
+  transition: opacity 1000ms var(--ease) 800ms, transform 1000ms var(--ease) 800ms;
+}
+.kicker { margin: 0 0 24px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; }
+.name {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--display); line-height: 0.95; letter-spacing: -0.03em;
+}
+
+/* ─── Commandes ─────────────────────────────────────── */
+
+.btn {
+  min-height: 56px; padding: 0 32px;
+  font: 700 var(--body) / 1 "The Seasons", Georgia, serif;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent; border-radius: var(--r-btn);
+  background: transparent; color: inherit; cursor: pointer;
+  transition: background-color 400ms var(--ease), border-color 400ms var(--ease), opacity 400ms var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:focus-visible { outline: 2px solid var(--signal); outline-offset: 4px; }
+.btn[disabled] { opacity: 0.4; cursor: default; }
+
+.btn-primary { background: var(--signal); border-color: var(--signal); color: var(--ink); }
+.btn-primary:hover:not([disabled]) { background: var(--white); border-color: var(--white); }
+.btn-ghost { border-color: rgba(27, 27, 27, 0.5); color: var(--ink); }
+.btn-ghost:hover { background: rgba(27, 27, 27, 0.08); }
+
+/* ─── Modale ────────────────────────────────────────── */
+
+.dlg {
+  padding: 0; border: 0; background: transparent; color: var(--ink);
+  max-width: none; max-height: none; overflow: visible;
+  width: max(min(60vw, 1000px), min(560px, 92vw));
+}
+.dlg::backdrop {
+  background: rgba(0, 0, 0, 0.66);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+}
+.dlg[open]::backdrop { animation: fade 800ms var(--ease) both; }
+.dlg[open] .card { animation: rise 1000ms var(--ease) both; }
+/* clavier virtuel ouvert : on colle la modale en haut pour que le champ reste visible */
+.dlg.kb { margin-top: 16px; margin-bottom: auto; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.card {
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: min(56vh, 560px); padding: 56px;
+  background: var(--haze); border-radius: var(--r-card);
+}
+.step { animation: rise 900ms var(--ease) both; }
+.step[hidden] { display: none; }
+
+.eyebrow { margin: 0 0 24px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; }
+.title {
+  margin: 0 0 32px;
+  font-weight: 400;
+  font-size: clamp(44px, 5.8vw, 84px); line-height: 1; letter-spacing: -0.03em;
+}
+/* le geste unique : un mot en italique au milieu d'un titre droit */
+.title em { font-style: italic; }
+.lead { margin: 0 0 32px; max-width: 36em; }
+.label { display: block; margin: 0 0 8px; font-weight: 700; }
+.field {
+  display: block; width: 100%; padding: 16px;
+  font: 400 var(--body) / 1.5 "The Seasons", Georgia, serif;
+  color: var(--ink); background: var(--white);
+  border: 1px solid rgba(27, 27, 27, 0.28); border-radius: var(--r-field);
+  resize: none;
+}
+.field:focus { outline: 2px solid var(--signal); outline-offset: 0; border-color: var(--signal); }
+.field[aria-invalid="true"] { border: 2px solid var(--ink); padding: 15px; }
+.err { margin: 8px 0 0; font-weight: 700; }
+.legal { margin: 16px 0 0; color: rgba(27, 27, 27, 0.72); }
+.actions { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 32px; }
+
+/* ─── Portrait (tablette verticale) ─────────────────── */
+
+@media (max-aspect-ratio: 1 / 1) {
+  :root { --s: min(92vw, 54vh); --edge: 24px; --display: clamp(108px, 20vw, 200px); }
+  .wheel-box { top: 52%; }
+  .card { padding: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .step, .dlg[open] .card, .dlg[open]::backdrop { animation-duration: 1ms; animation-delay: 0ms; }
+  .backdrop img, .thumb-in, .result, .btn, .pip { transition-duration: 1ms; }
+}

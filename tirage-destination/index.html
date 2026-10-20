@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SamBoat — Tirage de destination</title>
+<meta name="description" content="Concept d'écran tactile SamBoat : un gouvernail, dix destinations, deux lancers.">
+<link rel="stylesheet" href="logo.css">
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+
+<main class="stage" id="stage">
+  <div class="backdrop" id="backdrop" aria-hidden="true"></div>
+  <div class="veil" aria-hidden="true"></div>
+
+  <header class="brand rise" style="--d:0ms">
+    <span class="logo" aria-hidden="true"></span>
+    <span class="wordmark">SamBoat</span>
+  </header>
+
+  <h1 class="sr-only">SamBoat — Tirage de destination</h1>
+
+  <div class="pips rise" style="--d:300ms">
+    <span class="pips-label">Lancers</span>
+    <span class="pips-dots" id="pips" role="img" aria-label="2 lancers restants">
+      <i class="pip is-full"></i><i class="pip is-full"></i>
+    </span>
+  </div>
+
+  <div class="zoomer" id="zoomer">
+    <div class="wheel-box rise" id="wheelBox" style="--d:450ms">
+      <span class="pointer" aria-hidden="true"></span>
+      <div class="wheel" id="wheel">
+        <img class="helm" src="helm.svg" alt="" draggable="false">
+      </div>
+    </div>
+  </div>
+
+  <section class="result" id="result" aria-hidden="true">
+    <p class="kicker" id="kicker"></p>
+    <p class="name" id="name"></p>
+  </section>
+
+  <p class="sr-only" id="live" aria-live="polite"></p>
+</main>
+
+<dialog class="dlg" id="dlg" aria-labelledby="dlgTitle">
+  <div class="card">
+
+    <section class="step" data-step="question">
+      <p class="eyebrow" id="picks">Vos deux destinations</p>
+      <h2 class="title" id="dlgTitle">Qu’est-ce que la <em>liberté</em> pour vous&nbsp;?</h2>
+      <form id="formQuestion" novalidate>
+        <label class="label" for="answer">Votre réponse</label>
+        <textarea class="field" id="answer" name="answer" rows="3" maxlength="280" autocomplete="off" aria-describedby="answerErr"></textarea>
+        <p class="err" id="answerErr" role="alert" hidden>Écrivez au moins un mot pour continuer.</p>
+        <div class="actions"><button class="btn btn-primary" type="submit">Valider</button></div>
+      </form>
+    </section>
+
+    <section class="step" data-step="draw" hidden>
+      <p class="eyebrow">Concours SamBoat</p>
+      <h2 class="title">Gagnez 15&nbsp;% de remise sur votre voyage</h2>
+      <p class="lead" id="lead"></p>
+      <form id="formMail" novalidate>
+        <label class="label" for="mail">Votre email</label>
+        <input class="field" id="mail" name="mail" type="email" inputmode="email" autocomplete="email" placeholder="nom@exemple.fr" aria-describedby="mailErr">
+        <p class="err" id="mailErr" role="alert" hidden>Cette adresse ne semble pas valide.</p>
+        <p class="legal">Un seul gagnant, tiré au sort parmi les participants.</p>
+        <div class="actions"><button class="btn btn-primary" type="submit">Participer</button></div>
+      </form>
+    </section>
+
+    <section class="step" data-step="thanks" hidden>
+      <p class="eyebrow">Merci</p>
+      <h2 class="title" id="thanksTitle"></h2>
+      <p class="lead" id="thanksText"></p>
+      <p class="legal">Retour à l’accueil dans <span id="count">12</span>&nbsp;s.</p>
+      <div class="actions"><button class="btn btn-ghost" type="button" id="again">Recommencer</button></div>
+    </section>
+
+  </div>
+</dialog>
+
+</body>
+</html>

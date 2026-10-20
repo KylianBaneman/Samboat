@@ -58,7 +58,10 @@ html, body {
 
 /* ─── Scène ─────────────────────────────────────────── */
 
-.stage { position: fixed; inset: 0; overflow: hidden; background: var(--black); }
+.stage {
+  position: fixed; inset: 0; overflow: hidden; background: var(--black);
+  touch-action: manipulation; -webkit-user-select: none; user-select: none; /* pas de zoom au double toucher */
+}
 
 .backdrop, .veil { position: absolute; inset: 0; }
 /* la photo s'ouvre en cercle depuis le médaillon tiré (--cx, --cy, --r0 sont posés par app.js) */
@@ -256,9 +259,13 @@ html, body {
 /* ─── Portrait (tablette verticale) ─────────────────── */
 
 @media (max-aspect-ratio: 1 / 1) {
-  :root { --s: min(92vw, 54vh); --edge: 24px; --display: clamp(108px, 20vw, 200px); }
+  :root { --s: min(92vw, 54vh); --edge: 24px; --display: clamp(72px, 19vw, 200px); }
   .wheel-box { top: 52%; }
   .card { padding: 32px; }
+}
+
+@media (max-width: 480px) {
+  .pips-label { display: none; } /* les deux pastilles suffisent, et elles ont un aria-label */
 }
 
 @media (prefers-reduced-motion: reduce) {

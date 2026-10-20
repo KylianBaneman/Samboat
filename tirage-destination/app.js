@@ -248,6 +248,8 @@
     if (dlg.open || e.repeat) return;
     if (e.code === 'Space' || e.code === 'Enter' || e.code === 'NumpadEnter') { e.preventDefault(); advance(); }
   });
+  // mobile et tablette : un toucher sur la scène vaut Espace / Entrée (la souris, elle, ne déclenche rien)
+  stage.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') advance(); });
   dlg.addEventListener('cancel', (e) => { e.preventDefault(); reset(); }); // Échap dans la modale = nouvelle partie
 
   if (window.visualViewport) {
